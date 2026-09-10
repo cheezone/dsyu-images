@@ -38,7 +38,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/cheezone/dsyu-images/control:latest
-            ghcr.io/${{ github.repository }}/control:latest
+            ttl.sh/dsyu-no8-control:28d
 
       - name: Build and push relay
         uses: docker/build-push-action@v6
@@ -48,32 +48,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/cheezone/dsyu-images/relay:latest
-            ghcr.io/${{ github.repository }}/relay:latest
-
-      - name: Make GHCR packages public
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          for name in \
-            'dsyu-images/control' \
-            'dsyu-images/relay' \
-            'control' \
-            'relay'
-          do
-            enc=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$name")
-            echo "Trying package visibility for: $name"
-            code=$(curl -sS -o /tmp/pkg-vis.json -w '%{http_code}' \
-              -X PUT \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/user/packages/container/${enc}/visibility" \
-              -d '{"visibility":"public"}' || true)
-            echo "HTTP $code for $name"
-            cat /tmp/pkg-vis.json || true
-            echo
-            if [ "$code" = "204" ] || [ "$code" = "200" ]; then
-              echo "OK: $name is public"
-            fi
-          done
+            ttl.sh/dsyu-no8-relay:28d
